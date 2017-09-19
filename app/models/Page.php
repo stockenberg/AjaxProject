@@ -17,7 +17,7 @@ class Page extends Model
 	public $nicename;
 	public $created_at;
 	public $updated_at;
-	public $page_contents;
+	public $page_contents_id;
 
 	/**
 	 * @return mixed
@@ -26,15 +26,6 @@ class Page extends Model
 	{
 		return $this->id;
 	}
-
-	/**
-	 * @param mixed $id
-	 */
-	public function setId($id)
-	{
-		$this->id = $id;
-	}
-
 
 
 	/**
@@ -80,7 +71,7 @@ class Page extends Model
 	/**
 	 * @param mixed $created_at
 	 */
-	public function setCreatedAt($created_at)
+	private function setCreatedAt($created_at)
 	{
 		$this->created_at = $created_at;
 	}
@@ -96,7 +87,7 @@ class Page extends Model
 	/**
 	 * @param mixed $updated_at
 	 */
-	public function setUpdatedAt($updated_at)
+	private function setUpdatedAt($updated_at)
 	{
 		$this->updated_at = $updated_at;
 	}
@@ -104,19 +95,71 @@ class Page extends Model
 	/**
 	 * @return mixed
 	 */
-	public function getPageContents()
+	public function getPageContentsId()
 	{
-		return $this->page_contents;
+		return $this->page_contents_id;
 	}
 
 	/**
-	 * @param mixed $page_contents
+	 * @param mixed $page_contents_id
 	 */
-	public function setPageContents($page_contents)
+	public function setPageContentsId($page_contents_id)
 	{
-		$this->page_contents = $page_contents;
+		$this->page_contents_id = $page_contents_id;
 	}
 
+
+	/**
+	 * @return void
+	 */
+	public function save()
+	{
+
+		$SQL
+			= "INSERT INTO pages (slug, nicename, page_contents_id, created_at) 
+				VALUES (:slug, :nicename, :page_contents_id, :created_at)";
+
+		$stmt = $this->db->prepare($SQL);
+		$stmt->execute(
+			[
+				':slug'             => $this->slug,
+				':nicename'         => $this->nicename,
+				':page_contents_id' => $this->page_contents_id ?? null,
+				':created_at'       => date("Y-m-d H:i:s", time()),
+			]
+		);
+
+	}
+
+	/**
+	 * @param String $slug
+	 *
+	 * @return mixed
+	 */
+	public function getPageBySlug(String $slug)
+	{
+		$SQL = 'SELECT * FROM pages WHERE slug = :slug';
+		$stmt = $this->db->prepare($SQL);
+		$stmt->execute(
+			[":slug" => $slug]
+		);
+
+		$res = $stmt->fetchObject(Page::class);
+		return $res;
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getAll()
+	{
+		$SQL = 'SELECT * FROM pages';
+		$stmt = $this->db->prepare($SQL);
+		$stmt->execute();
+
+		$res = $stmt->fetchAll(\PDO::FETCH_CLASS, Page::class);
+		return $res;
+	}
 
 
 }

@@ -2,43 +2,40 @@
 
 namespace app\helpers;
 
+use app\models\Page;
+
 class GETValidator
 {
 
-	public $whitelist = [];
 	public $page;
 	public $defaultPage = 'home';
 	public $errorPage = '404';
 	public $path;
 
-	public function __construct(
-		Array $whitelist,
-		String $getParam,
-		String $path
-	) {
-		$this->whitelist = $whitelist;
+	public function __construct(String $getParam, String $path) {
 		$this->page = $getParam;
 		$this->path = $path;
 	}
 
 	public function getValidatedPage(): String
 	{
+
 		if ($this->page !== '') {
 
-			if (in_array($this->page, $this->whitelist)) {
-				if (file_exists($this->path.$this->page.'.php')) {
-					return $this->page;
-				}
+			$page = new Page();
 
-				return $this->errorPage;
+			/**
+			 * @var Page $result
+			 */
+			$result = $page->getPageBySlug($this->page);
 
+
+			if(!empty($result)){
+				return $result->getSlug();
 			}
 
-			if (!file_exists($this->path.$this->page.'.php')) {
-				return $this->errorPage;
-			}
+			return $this->errorPage;
 
-			return $this->defaultPage;
 		}
 
 		return $this->defaultPage;

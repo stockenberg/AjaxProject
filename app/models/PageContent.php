@@ -17,7 +17,7 @@ class PageContent extends Model
 	public $content;
 	public $created_at;
 	public $updated_at;
-	public $user_id;
+	public $users_id;
 
 	/**
 	 * @return mixed
@@ -117,6 +117,20 @@ class PageContent extends Model
 		$this->user_id = $user_id;
 	}
 
+	/**
+	 * @param Int $id
+	 *
+	 * @return mixed
+	 */
+	public function getById(Int $id)
+	{
+		$SQL = 'SELECT * FROM page_contents WHERE id = :id';
+		$stmt = $this->db->prepare($SQL);
+		$stmt->execute([':id' => $id]);
+
+		$res = $stmt->fetchObject(PageContent::class);
+		return $res;
+	}
 
 
 }
